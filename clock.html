@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Live Clock Overlay</title>
+  <style>
+    :root{
+      /* Kích thước tổng thể */
+      --clock-size: 88px;
+      --label-size: 28px;
+      --radius: 18px;
+      --padding: 18px 28px;
+    }
+
+    /* ===== THEMES ===== */
+    /* Neon tím */
+    .theme-neon{
+      --fg: #b889ff;
+      --glow-a: rgba(184,137,255,0.9);
+      --glow-b: rgba(120,90,255,0.7);
+      --bg-blur: rgba(25,18,40,0.25);
+    }
+    /* Đỏ */
+    .theme-red{
+      --fg: #ff4d4d;
+      --glow-a: rgba(255,77,77,0.9);
+      --glow-b: rgba(255,120,120,0.6);
+      --bg-blur: rgba(40,16,16,0.25);
+    }
+    /* Trắng tối giản */
+    .theme-white{
+      --fg: #ffffff;
+      --glow-a: rgba(255,255,255,0.85);
+      --glow-b: rgba(255,255,255,0.35);
+      --bg-blur: rgba(255,255,255,0.06);
+    }
+
+    /* ===== LAYOUT ===== */
+    html,body{
+      height:100%;
+    }
+    body{
+      margin:0;
+      background: transparent;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace;
+    }
+
+    .wrap{
+      backdrop-filter: blur(4px);
+      background: var(--bg-blur);
+      border-radius: var(--radius);
+      padding: var(--padding);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow:
+        0 0 24px var(--glow-b),
+        0 0 6px var(--glow-a) inset;
+    }
+
+    .label{
+      font-size: var(--label-size);
+      letter-spacing: 0.3px;
+      margin-bottom: 6px;
+      color: var(--fg);
+      text-shadow:
+        0 0 8px var(--glow-a),
+        0 0 18px var(--glow-b);
+      white-space: nowrap;
+    }
+
+    .clock{
+      font-size: var(--clock-size);
+      line-height: 1;
+      color: var(--fg);
+      text-shadow:
+        0 0 10px var(--glow-a),
+        0 0 28px var(--glow-b),
+        0 0 42px var(--glow-b);
+      letter-spacing: 2px;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+
+<!-- Đổi theme tại đây: theme-neon | theme-red | theme-white -->
+<body class="theme-neon">
+  <div class="wrap">
+    <div id="label" class="label">Phiên Live: --/--/----</div>
+    <div id="clock" class="clock">00:00:00</div>
+  </div>
+
+  <script>
+    // Định dạng dd/MM/yyyy
+    function formatDateVN(d){
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth()+1).padStart(2, '0');
+      const yyyy = d.getFullYear();
+      return `${dd}/${mm}/${yyyy}`;
+    }
+
+    function update(){
+      const now = new Date();
+
+      // Cập nhật nhãn ngày phiên live
+      const labelEl = document.getElementById('label');
+      const today = formatDateVN(now);
+      // Chỉ set nếu khác để tránh reflow quá mức
+      if(labelEl.dataset.last !== today){
+        labelEl.textContent = `Phiên Live : ${today}`;
+        labelEl.dataset.last = today;
+      }
+
+      // Cập nhật đồng hồ HH:mm:ss
+      const hh = String(now.getHours()).padStart(2,'0');
+      const mm = String(now.getMinutes()).padStart(2,'0');
+      const ss = String(now.getSeconds()).padStart(2,'0');
+      document.getElementById('clock').textContent = `${hh}:${mm}:${ss}`;
+    }
+
+    // Tick mỗi 250ms để mượt hơn, vẫn nhẹ
+    setInterval(update, 250);
+    update();
+  </script>
+</body>
+</html>
